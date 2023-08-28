@@ -1,18 +1,14 @@
-import { FC, PropsWithChildren, useEffect, useState } from "react";
+import { FC, PropsWithChildren } from "react";
 import styled from "styled-components";
 
 export const Canvas: FC<PropsWithChildren> = ({ children }) => {
-  const [state] = useState(1);
-
-  useEffect(() => {
-    console.log(state);
-  }, []);
-
-  return <Wrapper>{children}</Wrapper>;
+  return <Wrapper onMouseMove={console.log}>{children}</Wrapper>;
 };
 
 const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   width: 100%;
+  border: 1px solid grey;
+  height: 100%;
 `;
