@@ -13,13 +13,19 @@ function App() {
     },
   ]);
 
+  const [connections, setConnections] = useState([]);
+
   return (
     <Wrapper>
       <ResetStyles />
       <GlobalStyles />
 
       <Border>
-        <NodeEditor items={items} />
+        <NodeEditor
+          items={items}
+          connections={connections}
+          onChangeConnections={setConnections}
+        />
       </Border>
     </Wrapper>
   );

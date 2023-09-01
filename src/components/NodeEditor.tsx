@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
+import { useStore } from "../store";
 
 export type IItem = {
   id: string | number;
@@ -24,16 +25,27 @@ type IDragItem = {
 
 type IConnectItem = {
   id: string | number;
-  coords: [number, number];
+  startCoords: [number, number];
   endCoords: [number, number];
+  nodeId: string | number;
+  // direction: number;
+  target: string | number;
 };
 
-export const NodeEditor = ({ items }: { items: IItem[] }) => {
+export const NodeEditor = ({
+  items,
+  connections,
+  onChangeConnections,
+}: {
+  items: IItem[];
+  onChangeItems: (items: IItem[]) => void;
+  connections: IConnectItem[];
+  onChangeConnections: (connections: IConnectItem[]) => void;
+}) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const [dragItem, setDragItem] = useState<IDragItem | null>(null);
   const [connectItem, setConnectItem] = useState<IConnectItem | null>(null);
-  const [connections, setConnections] = useState<IConnectItem[]>([]);
 
   useEffect(() => {
     const handler = () => {
@@ -51,7 +63,7 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
     setDragItem(null);
 
     if (connectItem) {
-      setConnections((prev) => [...prev, connectItem]);
+      onChangeConnections([...connections, connectItem]);
       setConnectItem(null);
     }
   };
@@ -77,6 +89,12 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
           };
         });
 
+        const hasConnections = connections.find(
+          (el) => el.nodeId === dragItem.id
+        );
+
+        const relatedPoints = onChangeConnections;
+
         return;
       }
 
@@ -99,9 +117,10 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
                 Lorem ipsum dolor sit amet consectetur, adipisicing elit.
                 Eligendi molestias inventore dolore eaque
                 <button>click me</button>
-                <Dot
+                <DotPoint
+                  nodeId={el.id}
+                  id={el.id + "_1"}
                   onMouseDown={(e) => {
-                    console.log(e.currentTarget);
                     if (!canvasRef.current) return;
 
                     const rect = canvasRef.current.getBoundingClientRect();
@@ -113,15 +132,15 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
 
                     setConnectItem({
                       id: "1",
-                      coords,
+                      startCoords: coords,
                       endCoords: coords,
+                      target: "",
+                      nodeId: el.id,
                     });
 
                     e.stopPropagation();
                   }}
-                >
-                  <div>lorem</div>
-                </Dot>
+                />
               </Card>
             </DragItem>
           );
@@ -129,7 +148,7 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
         <SVG>
           {connectItem && (
             <path
-              d={`M ${connectItem.coords[0]} ${connectItem.coords[1]} C ${connectItem.coords[0]} ${connectItem.coords[1]}, ${connectItem.endCoords[0]} ${connectItem.endCoords[1]}, ${connectItem.endCoords[0]} ${connectItem.endCoords[1]}`}
+              d={`M ${connectItem.startCoords[0]} ${connectItem.startCoords[1]} C ${connectItem.startCoords[0]} ${connectItem.startCoords[1]}, ${connectItem.endCoords[0]} ${connectItem.endCoords[1]}, ${connectItem.endCoords[0]} ${connectItem.endCoords[1]}`}
               stroke="green"
               fill="transparent"
             />
@@ -137,7 +156,7 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
           {connections.map((el) => (
             <path
               key={el.id}
-              d={`M ${el.coords[0]} ${el.coords[1]} C ${el.coords[0]} ${el.coords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}`}
+              d={`M ${el.startCoords[0]} ${el.startCoords[1]} C ${el.startCoords[0]} ${el.startCoords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}`}
               stroke="blue"
               fill="transparent"
             />
@@ -146,6 +165,49 @@ export const NodeEditor = ({ items }: { items: IItem[] }) => {
       </Canvas>
     </>
   );
+};
+
+const DotPoint = ({
+  id,
+  nodeId,
+  onMouseDown,
+}: {
+  id: number | string;
+  nodeId: string | number;
+  onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      const point = {
+        id,
+        el: ref.current,
+      };
+
+      useStore.setState((prev) => ({
+        nodes: {
+          ...prev.nodes,
+          [nodeId]: {
+            points: [...(prev.nodes[nodeId]?.points || []), point],
+          },
+        },
+      }));
+    }
+
+    return () => {
+      useStore.setState((prev) => ({
+        nodes: {
+          ...prev.nodes,
+          [nodeId]: {
+            points: prev.nodes[nodeId].points.filter((el) => el.id !== id),
+          },
+        },
+      }));
+    };
+  }, [id, nodeId]);
+
+  return <Dot ref={ref} onMouseDown={onMouseDown}></Dot>;
 };
 
 export type IContext = {
@@ -162,7 +224,9 @@ const SVG = styled.svg`
 
 const Dot = styled.div`
   background-color: red;
-  padding: 25px;
+  width: 25px;
+  height: 25px;
+  border-radius: 25px;
 `;
 
 const DragItem = ({
