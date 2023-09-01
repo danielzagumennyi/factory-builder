@@ -104,8 +104,11 @@ export const NodeEditor = ({
         const pointPositions = points.reduce<
           Record<string | number, [number, number]>
         >((acc, { id, el }) => {
+          if (!canvasRef.current) return acc;
           const rect = el.getBoundingClientRect();
-          acc[id] = [rect.x, rect.y];
+          const canvasRect = canvasRef.current?.getBoundingClientRect();
+
+          acc[id] = [rect.x - canvasRect?.x, rect.y - canvasRect?.y];
           return acc;
         }, {});
 
@@ -114,11 +117,14 @@ export const NodeEditor = ({
         return;
       }
 
-      if (connectItem) {
-        setConnectItem({ ...connectItem, endCoords: getMouseCoords(e) });
-      }
+      const rect = e.currentTarget.getBoundingClientRect();
+      setConnectItem((prev) =>
+        prev
+          ? { ...prev, endCoords: [e.clientX - rect.x, e.clientY - rect.y] }
+          : prev
+      );
     },
-    [connectItem, dragItem]
+    [dragItem]
   );
 
   return (
@@ -137,10 +143,9 @@ export const NodeEditor = ({
                   nodeId={el.id}
                   id={el.id + "_1"}
                   onMouseEnter={() => {
-                    setConnectItem(null);
-                    if (connectItem) {
-                      console.log(connectItem);
-                    }
+                    setConnectItem((prev) =>
+                      prev ? { ...prev, target: el.id + "_1" } : prev
+                    );
                   }}
                   onMouseDown={(e) => {
                     if (!canvasRef.current) return;
@@ -208,6 +213,21 @@ const DotPoint = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
+  usePoint({ id, nodeId, ref });
+
+  return (
+    <Dot ref={ref} onMouseDown={onMouseDown} onMouseEnter={onMouseEnter}></Dot>
+  );
+};
+const usePoint = ({
+  nodeId,
+  id,
+  ref,
+}: {
+  nodeId: string | number;
+  id: string | number;
+  ref: React.RefObject<HTMLDivElement>;
+}) => {
   useEffect(() => {
     if (ref.current) {
       const point = {
@@ -231,11 +251,7 @@ const DotPoint = ({
         },
       }));
     };
-  }, [id, nodeId]);
-
-  return (
-    <Dot ref={ref} onMouseDown={onMouseDown} onMouseEnter={onMouseEnter}></Dot>
-  );
+  }, [id, nodeId, ref]);
 };
 
 export type IContext = {
@@ -248,6 +264,8 @@ const SVG = styled.svg`
   width: 100%;
   height: 100%;
   pointer-events: none;
+  position: relative;
+  z-index: 1;
 `;
 
 const Dot = styled.div`
