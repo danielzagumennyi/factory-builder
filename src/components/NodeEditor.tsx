@@ -25,11 +25,13 @@ type IDragItem = {
 
 type IConnectItem = {
   id: string | number;
+  nodeId: string | number;
+  target: string | number;
+};
+
+type IPreConnection = IConnectItem & {
   startCoords: [number, number];
   endCoords: [number, number];
-  nodeId: string | number;
-  // direction: number;
-  target: string | number;
 };
 
 export const NodeEditor = ({
@@ -45,7 +47,7 @@ export const NodeEditor = ({
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const [dragItem, setDragItem] = useState<IDragItem | null>(null);
-  const [connectItem, setConnectItem] = useState<IConnectItem | null>(null);
+  const [connectItem, setConnectItem] = useState<IPreConnection | null>(null);
 
   useEffect(() => {
     const handler = () => {
@@ -63,12 +65,20 @@ export const NodeEditor = ({
     setDragItem(null);
 
     if (connectItem) {
+      console.log(
+        "🚀 ~ file: NodeEditor.tsx:69 ~ handleUp ~ connectItem:",
+        connectItem
+      );
       onChangeConnections([...connections, connectItem]);
       setConnectItem(null);
     }
   };
 
   const [positions, setPositions] = useState<
+    Record<string | number, [number, number]>
+  >({});
+
+  const [pointPositions, setPointPositions] = useState<
     Record<string | number, [number, number]>
   >({});
 
@@ -89,11 +99,17 @@ export const NodeEditor = ({
           };
         });
 
-        const hasConnections = connections.find(
-          (el) => el.nodeId === dragItem.id
-        );
+        const points = useStore.getState().points[dragItem.id];
 
-        const relatedPoints = onChangeConnections;
+        const pointPositions = points.reduce<
+          Record<string | number, [number, number]>
+        >((acc, { id, el }) => {
+          const rect = el.getBoundingClientRect();
+          acc[id] = [rect.x, rect.y];
+          return acc;
+        }, {});
+
+        setPointPositions((prev) => ({ ...prev, ...pointPositions }));
 
         return;
       }
@@ -120,6 +136,12 @@ export const NodeEditor = ({
                 <DotPoint
                   nodeId={el.id}
                   id={el.id + "_1"}
+                  onMouseEnter={() => {
+                    setConnectItem(null);
+                    if (connectItem) {
+                      console.log(connectItem);
+                    }
+                  }}
                   onMouseDown={(e) => {
                     if (!canvasRef.current) return;
 
@@ -131,7 +153,7 @@ export const NodeEditor = ({
                     ];
 
                     setConnectItem({
-                      id: "1",
+                      id: el.id + "_1",
                       startCoords: coords,
                       endCoords: coords,
                       target: "",
@@ -156,7 +178,13 @@ export const NodeEditor = ({
           {connections.map((el) => (
             <path
               key={el.id}
-              d={`M ${el.startCoords[0]} ${el.startCoords[1]} C ${el.startCoords[0]} ${el.startCoords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}, ${el.endCoords[0]} ${el.endCoords[1]}`}
+              d={`M ${pointPositions[el.id][0]} ${pointPositions[el.id][1]} C ${
+                pointPositions[el.target][0]
+              } ${pointPositions[el.target][1]}, ${
+                pointPositions[el.target][0]
+              } ${pointPositions[el.target][1]}, ${
+                pointPositions[el.target][0]
+              } ${pointPositions[el.target][1]}`}
               stroke="blue"
               fill="transparent"
             />
@@ -171,10 +199,12 @@ const DotPoint = ({
   id,
   nodeId,
   onMouseDown,
+  onMouseEnter,
 }: {
   id: number | string;
   nodeId: string | number;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -186,28 +216,26 @@ const DotPoint = ({
       };
 
       useStore.setState((prev) => ({
-        nodes: {
-          ...prev.nodes,
-          [nodeId]: {
-            points: [...(prev.nodes[nodeId]?.points || []), point],
-          },
+        points: {
+          ...prev.points,
+          [nodeId]: [...(prev.points[nodeId] || []), point],
         },
       }));
     }
 
     return () => {
       useStore.setState((prev) => ({
-        nodes: {
-          ...prev.nodes,
-          [nodeId]: {
-            points: prev.nodes[nodeId].points.filter((el) => el.id !== id),
-          },
+        points: {
+          ...prev.points,
+          [nodeId]: prev.points[nodeId].filter((el) => el.id !== id),
         },
       }));
     };
   }, [id, nodeId]);
 
-  return <Dot ref={ref} onMouseDown={onMouseDown}></Dot>;
+  return (
+    <Dot ref={ref} onMouseDown={onMouseDown} onMouseEnter={onMouseEnter}></Dot>
+  );
 };
 
 export type IContext = {
