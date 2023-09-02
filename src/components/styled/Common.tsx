@@ -1,9 +1,10 @@
 import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
-  body {
-    color: #fff;
-    background-color: #181818;
+  body { 
+    min-width: 320px;
+    font-family: sans-serif;
+    font-size: 14px;
   }
 
   #root {
