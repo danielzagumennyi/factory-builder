@@ -1,7 +1,12 @@
 import styled from "styled-components";
+import { NodeEditor } from "../../components/NodeEditor";
 
 export const Editor = () => {
-  return <Wrapper></Wrapper>;
+  return (
+    <Wrapper>
+      <NodeEditor />
+    </Wrapper>
+  );
 };
 
 const Wrapper = styled.div`

@@ -22,8 +22,9 @@ export const Node = ({ id }: { id: string | number }) => {
         position: "absolute",
         left: x + "px",
         top: y + "px",
-        width: "100%",
         userSelect: "none",
+        overflow: "visible",
+        width: "min-content",
       }}
     >
       {content}

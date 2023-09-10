@@ -14,7 +14,7 @@ export const useDrag = () => {
       mouseCoords[1] - dragNode.offset[1],
     ];
 
-    const points = useStore.getState().points[dragNode.id];
+    const points = useStore.getState().points[dragNode.id] || [];
     const canvas = useStore.getState().canvas;
 
     const pointPositions = points.reduce<

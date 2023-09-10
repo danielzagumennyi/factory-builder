@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { createWithEqualityFn } from "zustand/traditional";
 import { Card, Flex, FlexEnd } from "./components/styled/Other";
 import { Point } from "./components/Point";
+import { uniqBy } from "lodash-es";
 
 export type IPoint = {
   id: string | number;
@@ -41,38 +42,44 @@ export type IStore = {
   nodePositions: Record<string | number, [number, number]>;
   pointPositions: Record<string | number, [number, number]>;
   preConnection: IPreConnection | null;
+
+  addNode: (item: INode) => void;
 };
 
 export const useStore = createWithEqualityFn<IStore>(
-  () => ({
+  (set, get) => ({
     canvas: null,
 
     preConnection: null,
     dragNode: null,
 
+    addNode: (node) => {
+      set((prev) => ({ ...prev, nodes: uniqBy([...prev.nodes, node], "id") }));
+    },
+
     nodes: [
-      {
-        id: "node1",
-        content: (
-          <Card>
-            node1
-            <FlexEnd>
-              <Point id={"point1"} nodeId={"node1"} />
-            </FlexEnd>
-          </Card>
-        ),
-      },
-      {
-        id: "node2",
-        content: (
-          <Card>
-            node2
-            <Flex>
-              <Point id={"point2"} nodeId={"node2"} />
-            </Flex>
-          </Card>
-        ),
-      },
+      // {
+      //   id: "node1",
+      //   content: (
+      //     <Card>
+      //       node1
+      //       <FlexEnd>
+      //         <Point id={"point1"} nodeId={"node1"} />
+      //       </FlexEnd>
+      //     </Card>
+      //   ),
+      // },
+      // {
+      //   id: "node2",
+      //   content: (
+      //     <Card>
+      //       node2
+      //       <Flex>
+      //         <Point id={"point2"} nodeId={"node2"} />
+      //       </Flex>
+      //     </Card>
+      //   ),
+      // },
     ],
     connections: [],
 
