@@ -1,4 +1,5 @@
 import data from "./parsedData.json";
+import { CategoryType, RecipeType, ProductionNodeType } from "./types";
 
 const originalDocs = Object.values(data.meta.originalDocs).reduce(
   (acc, val) => {
@@ -10,39 +11,7 @@ const originalDocs = Object.values(data.meta.originalDocs).reduce(
 
 console.log("data:", originalDocs);
 
-export type Recipe = {
-  id: string;
-  name: string;
-  image: string;
-  input: Input[];
-  output: Output[];
-  productionNodes: string[];
-};
-
-export type Input = {
-  id: string;
-  count: string;
-};
-
-export type Output = {
-  id: string;
-  count: string;
-};
-
-export type ProductionNodeType = {
-  id: string;
-  name: string;
-  desc: string;
-  image: string;
-  recipes: Recipe[];
-};
-
-export type Category = {
-  name: string;
-  nodes: ProductionNodeType[];
-};
-
-export const addableNodes: Category[] = [];
+export const addableNodes: CategoryType[] = [];
 
 interface IFGRecipe {
   ClassName: string;
@@ -61,7 +30,7 @@ interface IFGRecipe {
 
 const recipes = (
   originalDocs["Class'/Script/FactoryGame.FGRecipe'"] as IFGRecipe[]
-).map<Recipe>((el) => {
+).map<RecipeType>((el) => {
   const id = el.ClassName.replace("Recipe_", "");
 
   const descriptor = [

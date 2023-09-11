@@ -12,6 +12,6 @@ export const LeftSidebar = () => {
 const Wrapper = styled.div`
   overflow: auto;
   max-height: 100vh;
-  width: 300px;
+  width: 500px;
   border-right: 1px solid #e6e6e6;
 `;

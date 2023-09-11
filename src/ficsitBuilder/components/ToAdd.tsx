@@ -1,13 +1,16 @@
 import styled from "styled-components";
 import { useStore } from "../../store";
-import { addableNodes, productionNodes } from "../data/addableNodes";
+import { addableNodes } from "../data/addableNodes";
+import { productionNodesList } from "../data/types";
 import { Resource } from "./Resource";
-import { ProductionNode } from "./ProductionNode";
+import { ProductionNode } from "./productionNode/ProductionNode";
 
 export const ToAdd = () => {
   return (
     <Wrapper>
-      <ProductionNode data={productionNodes[0]} />
+      {productionNodesList.map((el) => (
+        <ProductionNode data={el} key={el.id} />
+      ))}
     </Wrapper>
   );
 
@@ -79,5 +82,5 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 4px;
+  padding: 54px;
 `;
