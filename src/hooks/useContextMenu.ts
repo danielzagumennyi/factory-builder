@@ -1,28 +1,15 @@
-import { useClick, useFloating, useInteractions } from "@floating-ui/react";
-import { useState } from "react";
-import { useContextPoint } from "./useContextPoint";
+import { useEffect } from "react";
+import { useContextMenuStore } from "../components/contextMenu/store";
 
 export const useContextMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { open } = useContextMenuStore();
 
-  const { refs, floatingStyles, context } = useFloating({
-    open: isOpen,
-    onOpenChange: setIsOpen,
-  });
+  useEffect(() => {
+    const handleClick = () => {
+      if (open) useContextMenuStore.setState({ open: false });
+    };
 
-  const contextPoint = useContextPoint(context);
-  const click = useClick(context);
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    click,
-    contextPoint,
-  ]);
-
-  return {
-    isOpen,
-    getReferenceProps,
-    getFloatingProps,
-    floatingStyles,
-    refs,
-  };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [open]);
 };

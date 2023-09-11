@@ -4,8 +4,6 @@ import { useStore } from "../../store";
 import { Resource } from "./Resource";
 
 export const ToAdd = () => {
-  console.log(useStore.getState().nodes);
-
   return (
     <Wrapper>
       {gameData.meta.dataClassesByTopLevelClass.FGResourceDescriptor.map(
@@ -22,10 +20,12 @@ export const ToAdd = () => {
             <Item
               key={el.ClassName}
               onClick={() => {
+                const id = el.ClassName + "_" + new Date().getTime();
                 useStore.getState().addNode({
-                  id: el.ClassName + "_" + new Date().getTime(),
+                  id,
                   content: (
                     <Resource
+                      id={id}
                       desc={el.mDescription}
                       title={el.mDisplayName}
                       image={image}

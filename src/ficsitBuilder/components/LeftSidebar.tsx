@@ -10,6 +10,8 @@ export const LeftSidebar = () => {
 };
 
 const Wrapper = styled.div`
+  overflow: auto;
+  max-height: 100vh;
   width: 300px;
   border-right: 1px solid #e6e6e6;
 `;

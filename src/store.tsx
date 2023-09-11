@@ -1,8 +1,6 @@
+import { uniqBy } from "lodash-es";
 import { ReactNode } from "react";
 import { createWithEqualityFn } from "zustand/traditional";
-import { Card, Flex, FlexEnd } from "./components/styled/Other";
-import { Point } from "./components/Point";
-import { uniqBy } from "lodash-es";
 
 export type IPoint = {
   id: string | number;
@@ -44,10 +42,11 @@ export type IStore = {
   preConnection: IPreConnection | null;
 
   addNode: (item: INode) => void;
+  removeNode: (id: string | number) => void;
 };
 
 export const useStore = createWithEqualityFn<IStore>(
-  (set, get) => ({
+  (set) => ({
     canvas: null,
 
     preConnection: null,
@@ -55,6 +54,13 @@ export const useStore = createWithEqualityFn<IStore>(
 
     addNode: (node) => {
       set((prev) => ({ ...prev, nodes: uniqBy([...prev.nodes, node], "id") }));
+    },
+
+    removeNode: (id) => {
+      set((prev) => ({
+        ...prev,
+        nodes: prev.nodes.filter((n) => n.id !== id),
+      }));
     },
 
     nodes: [

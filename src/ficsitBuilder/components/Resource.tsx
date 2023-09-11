@@ -1,16 +1,21 @@
 import styled from "styled-components";
+import { useContextMenuTrigger } from "../../components/contextMenu/useContextMenuTrigger";
 
 export const Resource = ({
   desc,
   image,
   title,
+  id,
 }: {
   image: string;
   title: string;
   desc: string;
+  id: string;
 }) => {
+  const handleContext = useContextMenuTrigger({ desc, image, title, id });
+
   return (
-    <Item>
+    <Item onContextMenu={handleContext}>
       <ObjectIcon src={image} />
       <Information>
         <Name>{title}</Name>
