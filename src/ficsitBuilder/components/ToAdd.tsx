@@ -1,48 +1,40 @@
 import styled from "styled-components";
-import gameData from "../data/parsedData.json";
 import { useStore } from "../../store";
+import { addableNodes, productionNodes } from "../data/addableNodes";
 import { Resource } from "./Resource";
+import { ProductionNode } from "./ProductionNode";
 
 export const ToAdd = () => {
   return (
     <Wrapper>
-      {gameData.meta.dataClassesByTopLevelClass.FGResourceDescriptor.map(
-        (el) => {
-          const image =
-            el.mSmallIcon
-              .replace(
-                "Texture2D ",
-                "http://localhost:5173/src/ficsitBuilder/resourses/images/"
-              )
-              .split(".")[0] + ".png";
+      <ProductionNode data={productionNodes[0]} />
+    </Wrapper>
+  );
 
+  return (
+    <Wrapper>
+      {addableNodes.map((category) =>
+        category.nodes.map((el) => {
           return (
             <Item
-              key={el.ClassName}
+              key={el.id}
               onClick={() => {
-                const id = el.ClassName + "_" + new Date().getTime();
+                const id = el.id + "_" + new Date().getTime();
                 useStore.getState().addNode({
                   id,
-                  content: (
-                    <Resource
-                      id={id}
-                      desc={el.mDescription}
-                      title={el.mDisplayName}
-                      image={image}
-                    />
-                  ),
+                  content: <Resource data={el.data} />,
                   defaultPosition: [0, 0],
                 });
               }}
             >
-              <ObjectIcon src={image} />
+              <ObjectIcon src={el.data.image} />
               <Information>
-                <Name>{el.mDisplayName}</Name>
-                <Desc>{el.mDescription}</Desc>
+                <Name>{el.data.mDisplayName}</Name>
+                <Desc>{el.data.mDescription}</Desc>
               </Information>
             </Item>
           );
-        }
+        })
       )}
     </Wrapper>
   );
