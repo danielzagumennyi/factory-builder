@@ -13,6 +13,7 @@ export const Node = ({ id }: { id: string | number }) => {
   return (
     <div
       onMouseDown={(e) => {
+        if (e.button !== 0) return;
         startDrag({
           id: id,
           offset: getRelativeMousePosition(e),

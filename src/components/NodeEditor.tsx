@@ -5,6 +5,8 @@ import { useStore } from "../store";
 import { Connections } from "./Connections";
 import { Node } from "./Node";
 import { moveConnect, stopConnect } from "../hooks/useConnection";
+import { ContextMenu } from "./contextMenu/ContextMenu";
+import { useContextMenu } from "../hooks/useContextMenu";
 
 const handleUp = () => {
   stopDrag();
@@ -29,17 +31,32 @@ export const NodeEditor = () => {
     return () => window.document.removeEventListener("mouseup", handleUp);
   }, []);
 
+  const { floatingStyles, getFloatingProps, getReferenceProps, refs, isOpen } =
+    useContextMenu();
+
   return (
     <>
       <Canvas
-        ref={(el) => useStore.setState({ canvas: el })}
+        ref={(el) => {
+          useStore.setState({ canvas: el });
+          refs.setReference(el);
+        }}
         onMouseMove={handleMove}
+        {...getReferenceProps()}
       >
         {nodes.map((el) => (
           <Node id={el.id} key={el.id} />
         ))}
         <Connections />
       </Canvas>
+
+      {isOpen && (
+        <ContextMenu
+          floatingStyles={floatingStyles}
+          getFloatingProps={getFloatingProps}
+          refs={refs}
+        />
+      )}
     </>
   );
 };
