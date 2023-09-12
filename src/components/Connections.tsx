@@ -1,38 +1,15 @@
 import styled from "styled-components";
 import { useStore } from "../store";
+import { Connection } from "./Connection";
+import { PreConnection } from "./contextMenu/PreConnection";
 
 export const Connections = () => {
-  const { preConnection, pointPositions, connections } = useStore();
+  const connections = useStore((s) => s.connections);
   return (
     <SVG>
-      {preConnection && (
-        <path
-          d={`M ${pointPositions[preConnection.startPoint][0]} ${
-            pointPositions[preConnection.startPoint][1]
-          }
-          C ${pointPositions[preConnection.startPoint][0]} ${
-            pointPositions[preConnection.startPoint][1]
-          },
-          ${preConnection.mouseCoords[0]} ${preConnection.mouseCoords[1]},
-          ${preConnection.mouseCoords[0]} ${preConnection.mouseCoords[1]}`}
-          stroke="grey"
-          fill="transparent"
-        />
-      )}
-
+      <PreConnection />
       {connections.map((el) => (
-        <path
-          key={el.id + "_" + el.target}
-          d={`M ${pointPositions[el.id][0]} ${pointPositions[el.id][1]} C ${
-            pointPositions[el.id][0] + 100
-          } ${pointPositions[el.id][1]}, ${
-            pointPositions[el.target][0] - 100
-          } ${pointPositions[el.target][1]}, ${pointPositions[el.target][0]} ${
-            pointPositions[el.target][1]
-          }`}
-          stroke="#006eff"
-          fill="transparent"
-        />
+        <Connection el={el} key={el.id} />
       ))}
     </SVG>
   );

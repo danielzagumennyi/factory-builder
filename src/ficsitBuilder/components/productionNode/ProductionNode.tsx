@@ -1,13 +1,16 @@
 import styled from "styled-components";
 import { useContextMenuTrigger } from "../../../components/contextMenu/useContextMenuTrigger";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Select from "react-select";
 import { ProductionNodeType, RecipeType, itemsDescMap } from "../../data/types";
 import { Header } from "./Header";
 import { Connection } from "./Connection";
+import { NodeContext } from "../../../components/Node";
+import { useConnections } from "../../../hooks/useConnections";
 
 export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
-  const handleContext = useContextMenuTrigger(data);
+  const nodeId = useContext(NodeContext);
+  const handleContext = useContextMenuTrigger(nodeId);
 
   const [prodRecipe, setProdRecipe] = useState<RecipeType | null>(null);
 
@@ -25,6 +28,8 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
       ...r,
     };
   });
+
+  const connections = useConnections();
 
   return (
     <Wrapper onContextMenu={handleContext}>
@@ -44,6 +49,8 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
           </div>
         </Connections>
       )}
+
+      <div>{JSON.stringify(connections)}</div>
     </Wrapper>
   );
 };

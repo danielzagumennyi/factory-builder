@@ -29,6 +29,7 @@ export const Node = ({ id }: { id: string }) => {
         userSelect: "none",
         overflow: "visible",
         width: "min-content",
+        zIndex: 1,
       }}
     >
       <NodeContext.Provider value={id}>{content}</NodeContext.Provider>

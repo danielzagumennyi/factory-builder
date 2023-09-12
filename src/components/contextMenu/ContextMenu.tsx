@@ -19,7 +19,8 @@ export const ContextMenu = () => {
     >
       <Action
         onClick={() => {
-          useStore.getState().removeNode(data.id);
+          console.log(data);
+          useStore.getState().removeNode(data as string);
           useContextMenuStore.setState({ open: false });
         }}
       >
@@ -35,6 +36,7 @@ const Wrapper = styled.div`
   padding: 6px 0;
   border-radius: 6px;
   min-width: 150px;
+  z-index: 2;
 `;
 
 const Action = styled.div`

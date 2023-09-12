@@ -23,7 +23,7 @@ export const Connection = ({
     pointId: connectionId,
     ref,
     data: desc,
-    connectValidation: isOutput ? () => false : undefined,
+    connectValidation: (data) => data?.id === desc.id,
     isOutput,
     isInput,
   });

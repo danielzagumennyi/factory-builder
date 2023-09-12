@@ -18,10 +18,11 @@ export type IConnectItem = {
   target: string | number;
 };
 
-export type IPreConnection = {
+export type IPreConnection<DATA> = {
   nodeId: string | number;
-  startPoint: string | number;
-  endPoint: string | number;
+  outputPoint: string | number;
+  inputPointData: DATA;
+  inputPoint: string | number;
   mouseCoords: [number, number];
 };
 
@@ -39,7 +40,7 @@ export type IStore = {
   dragNode: IDragNode | null;
   nodePositions: Record<string | number, [number, number]>;
   pointPositions: Record<string | number, [number, number]>;
-  preConnection: IPreConnection | null;
+  preConnection: IPreConnection<unknown> | null;
 
   addNode: (item: INode) => void;
   removeNode: (id: string | number) => void;
@@ -57,10 +58,19 @@ export const useStore = createWithEqualityFn<IStore>(
     },
 
     removeNode: (id) => {
-      set((prev) => ({
-        ...prev,
-        nodes: prev.nodes.filter((n) => n.id !== id),
-      }));
+      set((prev) => {
+        const nodePoints = prev.points[id] || [];
+
+        return {
+          ...prev,
+          nodes: prev.nodes.filter((n) => n.id !== id),
+          connections: prev.connections.filter((c) => {
+            return !nodePoints.some(
+              (point) => point.id === c.id || point.id === c.target
+            );
+          }),
+        };
+      });
     },
 
     nodes: [

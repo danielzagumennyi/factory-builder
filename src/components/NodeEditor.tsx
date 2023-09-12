@@ -36,10 +36,10 @@ export const NodeEditor = () => {
         ref={(el) => useStore.setState({ canvas: el })}
         onMouseMove={handleMove}
       >
+        <Connections />
         {nodes.map((el) => (
           <Node id={el.id} key={el.id} />
         ))}
-        <Connections />
       </Canvas>
 
       <ContextMenu />

@@ -8,12 +8,14 @@ export const useConnection = <DATA>({
   ref,
   isInput = true,
   isOutput = true,
+  data,
+  connectValidation = () => true,
 }: {
   pointId: string | number;
   nodeId: string | number;
   ref: React.RefObject<HTMLDivElement>;
   data?: DATA;
-  connectValidation?: (connectionData: DATA) => boolean;
+  connectValidation?: (connectionData: DATA | undefined) => boolean;
   isInput?: boolean;
   isOutput?: boolean;
 }) => {
@@ -32,9 +34,10 @@ export const useConnection = <DATA>({
 
     useStore.setState({
       preConnection: {
-        startPoint: pointId,
+        inputPointData: data,
+        outputPoint: pointId,
         nodeId,
-        endPoint: "",
+        inputPoint: "",
         mouseCoords: coords,
       },
     });
@@ -45,19 +48,26 @@ export const useConnection = <DATA>({
   const selectEndPoint = (pointId: number | string) => {
     if (!isInput) return;
 
-    useStore.setState((prev) => ({
-      ...prev,
-      preConnection: prev.preConnection
-        ? { ...prev.preConnection, endPoint: pointId }
-        : null,
-    }));
+    const { preConnection } = useStore.getState();
+
+    if (
+      preConnection &&
+      connectValidation(preConnection.inputPointData as DATA)
+    ) {
+      useStore.setState((prev) => ({
+        ...prev,
+        preConnection: prev.preConnection
+          ? { ...prev.preConnection, inputPoint: pointId }
+          : null,
+      }));
+    }
   };
 
   const removeEndPoint = () => {
     useStore.setState((prev) => ({
       ...prev,
       preConnection: prev.preConnection
-        ? { ...prev.preConnection, endPoint: "" }
+        ? { ...prev.preConnection, inputPoint: "" }
         : null,
     }));
   };
@@ -73,7 +83,7 @@ export const stopConnect = () => {
   useStore.setState((prev) => {
     const { preConnection, canvas, points } = prev;
 
-    if (!canvas || !preConnection || !preConnection.endPoint) {
+    if (!canvas || !preConnection || !preConnection.inputPoint) {
       return {
         ...prev,
         preConnection: null,
@@ -81,33 +91,33 @@ export const stopConnect = () => {
     }
 
     const startPointEl = points[preConnection.nodeId].find(
-      (el) => el.id === preConnection.startPoint
+      (el) => el.id === preConnection.outputPoint
     )?.el;
 
     const endPointEl = points[preConnection.nodeId].find(
-      (el) => el.id === preConnection.endPoint
+      (el) => el.id === preConnection.inputPoint
     )?.el;
 
     const startPointPos = startPointEl
       ? getElementPosition(startPointEl, canvas)
-      : prev.pointPositions[preConnection.startPoint];
+      : prev.pointPositions[preConnection.outputPoint];
     const endPointPos = endPointEl
       ? getElementPosition(endPointEl, canvas)
-      : prev.pointPositions[preConnection.endPoint];
+      : prev.pointPositions[preConnection.inputPoint];
 
     return {
       ...prev,
       preConnection: null,
       pointPositions: {
         ...prev.pointPositions,
-        [preConnection.startPoint]: startPointPos,
-        [preConnection.endPoint]: endPointPos,
+        [preConnection.outputPoint]: startPointPos,
+        [preConnection.inputPoint]: endPointPos,
       },
       connections: [
         ...prev.connections,
         {
-          id: preConnection.startPoint,
-          target: preConnection.endPoint,
+          id: preConnection.outputPoint,
+          target: preConnection.inputPoint,
           nodeId: preConnection.nodeId,
         },
       ],
