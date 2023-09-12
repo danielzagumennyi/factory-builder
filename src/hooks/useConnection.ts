@@ -2,18 +2,26 @@ import { useStore } from "../store";
 import { getElementPosition, getRelativeMousePosition } from "../utils/utils";
 import { usePoint } from "./usePoint";
 
-export const useConnection = ({
+export const useConnection = <DATA>({
   nodeId,
   pointId,
   ref,
+  isInput = true,
+  isOutput = true,
 }: {
   pointId: string | number;
   nodeId: string | number;
   ref: React.RefObject<HTMLDivElement>;
+  data?: DATA;
+  connectValidation?: (connectionData: DATA) => boolean;
+  isInput?: boolean;
+  isOutput?: boolean;
 }) => {
   usePoint({ id: pointId, nodeId, ref });
 
   const startConnect = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!isOutput) return;
+
     const { canvas } = useStore.getState();
 
     if (!canvas) return;
@@ -35,6 +43,8 @@ export const useConnection = ({
   };
 
   const selectEndPoint = (pointId: number | string) => {
+    if (!isInput) return;
+
     useStore.setState((prev) => ({
       ...prev,
       preConnection: prev.preConnection
@@ -43,7 +53,20 @@ export const useConnection = ({
     }));
   };
 
-  return { startConnect, selectEndPoint };
+  const removeEndPoint = () => {
+    useStore.setState((prev) => ({
+      ...prev,
+      preConnection: prev.preConnection
+        ? { ...prev.preConnection, endPoint: "" }
+        : null,
+    }));
+  };
+
+  return {
+    onMouseEnter: () => selectEndPoint(pointId),
+    onMouseLeave: removeEndPoint,
+    onMouseDown: startConnect,
+  };
 };
 
 export const stopConnect = () => {

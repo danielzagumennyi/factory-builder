@@ -34,7 +34,7 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
         <Connections>
           <div>
             {prodRecipe.input.map((el) => (
-              <Connection id={el.id} count={el.count} key={el.id} />
+              <Connection id={el.id} count={el.count} key={el.id} isInput />
             ))}
           </div>
           <div>

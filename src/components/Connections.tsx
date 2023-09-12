@@ -22,7 +22,7 @@ export const Connections = () => {
 
       {connections.map((el) => (
         <path
-          key={el.id}
+          key={el.id + "_" + el.target}
           d={`M ${pointPositions[el.id][0]} ${pointPositions[el.id][1]} C ${
             pointPositions[el.id][0] + 100
           } ${pointPositions[el.id][1]}, ${

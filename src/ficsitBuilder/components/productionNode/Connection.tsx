@@ -1,16 +1,15 @@
-import styled, { css } from "styled-components";
-import { ConnectionType, itemsDescMap } from "../../data/types";
 import { useContext, useRef } from "react";
-import { useConnection } from "../../../hooks/useConnection";
-import { usePoint } from "../../../hooks/usePoint";
+import styled, { css } from "styled-components";
 import { NodeContext } from "../../../components/Node";
-import { useStore } from "../../../store";
+import { useConnection } from "../../../hooks/useConnection";
+import { ConnectionType, itemsDescMap } from "../../data/types";
 
 export const Connection = ({
   id,
   count,
-  isOutput,
-}: ConnectionType & { isOutput?: boolean }) => {
+  isOutput = false,
+  isInput = false,
+}: ConnectionType & { isOutput?: boolean; isInput?: boolean }) => {
   const nodeId = useContext(NodeContext);
 
   const desc = itemsDescMap[id];
@@ -19,30 +18,22 @@ export const Connection = ({
 
   const connectionId = nodeId + "_" + id;
 
-  // const isConnected = useStore(
-  //   (s) =>
-  //     !!s.connections.find(
-  //       (s) => s.id === connectionId || s.target === connectionId
-  //     )
-  // );
-
-  const isSelected = useStore(
-    (s) =>
-      s.preConnection?.startPoint === connectionId ||
-      s.preConnection?.endPoint === connectionId
-  );
-
-  const { startConnect, selectEndPoint } = useConnection({
+  const { onMouseDown, onMouseEnter, onMouseLeave } = useConnection({
     nodeId,
     pointId: connectionId,
     ref,
+    data: desc,
+    connectValidation: isOutput ? () => false : undefined,
+    isOutput,
+    isInput,
   });
 
   return (
     <Wrapper
       $isOutput={isOutput}
-      onMouseEnter={isSelected ? undefined : () => selectEndPoint(connectionId)}
-      onMouseDown={startConnect}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onMouseDown={onMouseDown}
     >
       <ImageWrapper>
         <Image src={desc.image} />
