@@ -62,12 +62,12 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
       ["copperOre", "ironOre"].includes(el.id)
         ? {
             itemId: el.id,
-            productionQuantity: el.count / 4,
+            productionQuantity: el.count * 2,
             requiredQuantity: el.count,
           }
         : {
             itemId: el.id,
-            productionQuantity: el.count * prodEffectivity,
+            productionQuantity: Math.min(el.count * prodEffectivity, el.count),
             requiredQuantity: el.count,
           }
     ) || [];
