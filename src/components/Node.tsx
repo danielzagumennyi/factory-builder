@@ -2,8 +2,11 @@ import { shallow } from "zustand/shallow";
 import { startDrag } from "../hooks/useDrag";
 import { useStore } from "../store";
 import { getRelativeMousePosition } from "../utils/utils";
+import { createContext } from "react";
 
-export const Node = ({ id }: { id: string | number }) => {
+export const NodeContext = createContext<string>("");
+
+export const Node = ({ id }: { id: string }) => {
   const [x, y] = useStore((s) => s.nodePositions[id] || [0, 0], shallow);
   const content = useStore(
     (s) => s.nodes.find((s) => s.id === id)?.content,
@@ -28,7 +31,7 @@ export const Node = ({ id }: { id: string | number }) => {
         width: "min-content",
       }}
     >
-      {content}
+      <NodeContext.Provider value={id}>{content}</NodeContext.Provider>
     </div>
   );
 };

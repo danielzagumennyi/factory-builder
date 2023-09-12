@@ -7,7 +7,10 @@ export const Header = ({ id }: { id: string }) => {
   return (
     <Wrapper>
       <Image src={desc.image} />
-      <Name>{desc.name}</Name>
+      <Overflow>
+        <Name>{desc.name}</Name>
+        <Desc>{desc.desc}</Desc>
+      </Overflow>
     </Wrapper>
   );
 };
@@ -15,6 +18,7 @@ export const Header = ({ id }: { id: string }) => {
 const Wrapper = styled.div`
   display: flex;
   gap: 12px;
+  max-width: 100%;
 `;
 
 const Image = styled.img`
@@ -28,4 +32,14 @@ const Name = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+`;
+
+const Overflow = styled.div`
+  overflow: hidden;
+`;
+
+const Desc = styled(Name)`
+  font-weight: normal;
+  font-size: 10px;
 `;

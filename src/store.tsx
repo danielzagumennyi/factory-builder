@@ -26,7 +26,7 @@ export type IPreConnection = {
 };
 
 export type INode = {
-  id: string | number;
+  id: string;
   defaultPosition?: [number, number];
   content: ReactNode;
 };
@@ -95,3 +95,5 @@ export const useStore = createWithEqualityFn<IStore>(
   }),
   Object.is
 );
+
+window.useStore = useStore;

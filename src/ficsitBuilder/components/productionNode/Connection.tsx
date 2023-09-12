@@ -1,17 +1,52 @@
 import styled, { css } from "styled-components";
 import { ConnectionType, itemsDescMap } from "../../data/types";
+import { useContext, useRef } from "react";
+import { useConnection } from "../../../hooks/useConnection";
+import { usePoint } from "../../../hooks/usePoint";
+import { NodeContext } from "../../../components/Node";
+import { useStore } from "../../../store";
 
 export const Connection = ({
   id,
   count,
   isOutput,
 }: ConnectionType & { isOutput?: boolean }) => {
+  const nodeId = useContext(NodeContext);
+
   const desc = itemsDescMap[id];
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  const connectionId = nodeId + "_" + id;
+
+  // const isConnected = useStore(
+  //   (s) =>
+  //     !!s.connections.find(
+  //       (s) => s.id === connectionId || s.target === connectionId
+  //     )
+  // );
+
+  const isSelected = useStore(
+    (s) =>
+      s.preConnection?.startPoint === connectionId ||
+      s.preConnection?.endPoint === connectionId
+  );
+
+  const { startConnect, selectEndPoint } = useConnection({
+    nodeId,
+    pointId: connectionId,
+    ref,
+  });
+
   return (
-    <Wrapper $isOutput={isOutput}>
+    <Wrapper
+      $isOutput={isOutput}
+      onMouseEnter={isSelected ? undefined : () => selectEndPoint(connectionId)}
+      onMouseDown={startConnect}
+    >
       <ImageWrapper>
         <Image src={desc.image} />
+        <ConnectionSource ref={ref} />
       </ImageWrapper>
       <div>
         <Name>{desc.name}</Name>
@@ -21,12 +56,21 @@ export const Connection = ({
   );
 };
 
+const ConnectionSource = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: red;
+`;
+
 const Image = styled.img`
   width: 20px;
   height: 20px;
+  pointer-events: none;
 `;
 
 const ImageWrapper = styled.div`
+  position: relative;
   width: 28px;
   height: 28px;
   display: flex;

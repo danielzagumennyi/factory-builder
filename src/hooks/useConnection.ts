@@ -1,13 +1,18 @@
 import { useStore } from "../store";
 import { getElementPosition, getRelativeMousePosition } from "../utils/utils";
+import { usePoint } from "./usePoint";
 
 export const useConnection = ({
   nodeId,
   pointId,
+  ref,
 }: {
   pointId: string | number;
   nodeId: string | number;
+  ref: React.RefObject<HTMLDivElement>;
 }) => {
+  usePoint({ id: pointId, nodeId, ref });
+
   const startConnect = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const { canvas } = useStore.getState();
 

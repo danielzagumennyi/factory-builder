@@ -1,5 +1,3 @@
-import { groupBy } from "lodash";
-
 export type RecipeType = {
   id: string;
   input: ConnectionType[];
@@ -14,9 +12,6 @@ export type ConnectionType = {
 
 export type ProductionNodeType = {
   id: string;
-  name: string;
-  desc: string;
-  image: string;
   recipes: RecipeType[];
 };
 
@@ -24,6 +19,7 @@ export type ItemDescType = {
   id: string;
   name: string;
   image: string;
+  desc?: string;
 };
 
 export const itemList: ItemDescType[] = [
@@ -32,6 +28,14 @@ export const itemList: ItemDescType[] = [
     image:
       "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/6/61/Constructor.png",
     name: "Constructor",
+    desc: "Crafts one part into another part. Can be automated by feeding parts into it with a conveyor belt connected to the input. The produced parts can be automatically extracted by connecting a conveyor belt to the output.",
+  },
+  {
+    id: "miner",
+    name: "Miner",
+    image:
+      "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/c/cf/Miner_Mk.1.png",
+    desc: "Extracts solid resources from the resource node it is built on. The normal extraction rate is 60 resources per minute. The extraction rate is modified depending on resource purity. Outputs all extracted resources onto connected conveyor belts.",
   },
   {
     id: "ironPlate",
@@ -276,10 +280,33 @@ export const recipeMap = recipesList.reduce<Record<string, RecipeType>>(
 export const productionNodesList: ProductionNodeType[] = [
   {
     id: "constructor",
-    name: "Constructor",
-    image:
-      "https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/6/61/Constructor.png/revision/latest?cb=20220920180002",
-    desc: "Crafts one part into another part. Can be automated by feeding parts into it with a conveyor belt connected to the input. The produced parts can be automatically extracted by connecting a conveyor belt to the output.",
     recipes: recipesList,
+  },
+  {
+    id: "miner",
+    recipes: [
+      {
+        id: "copperOre",
+        productionNodes: ["miner"],
+        input: [],
+        output: [
+          {
+            count: 60,
+            id: "copperOre",
+          },
+        ],
+      },
+      {
+        id: "ironOre",
+        productionNodes: ["miner"],
+        input: [],
+        output: [
+          {
+            count: 60,
+            id: "ironOre",
+          },
+        ],
+      },
+    ],
   },
 ];
