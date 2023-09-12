@@ -9,7 +9,7 @@ export const Connections = () => {
     <SVG>
       <PreConnection />
       {connections.map((el) => (
-        <Connection el={el} key={el.id} />
+        <Connection el={el} key={el.output} />
       ))}
     </SVG>
   );

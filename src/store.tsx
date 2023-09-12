@@ -13,9 +13,8 @@ export type IDragNode = {
 };
 
 export type IConnectItem = {
-  id: string | number;
-  nodeId: string | number;
-  target: string | number;
+  output: string | number;
+  input: string | number;
 };
 
 export type IPreConnection<DATA> = {
@@ -34,13 +33,14 @@ export type INode = {
 
 export type IStore = {
   canvas: HTMLElement | null;
-  points: Record<string | number, IPoint[]>;
   nodes: INode[];
+  pointsByNodes: Record<string | number, IPoint[]>;
   connections: IConnectItem[];
   dragNode: IDragNode | null;
   nodePositions: Record<string | number, [number, number]>;
   pointPositions: Record<string | number, [number, number]>;
   preConnection: IPreConnection<unknown> | null;
+  pointsData: Record<string, unknown>;
 
   addNode: (item: INode) => void;
   removeNode: (id: string | number) => void;
@@ -49,6 +49,7 @@ export type IStore = {
 export const useStore = createWithEqualityFn<IStore>(
   (set) => ({
     canvas: null,
+    pointsData: {},
 
     preConnection: null,
     dragNode: null,
@@ -59,14 +60,14 @@ export const useStore = createWithEqualityFn<IStore>(
 
     removeNode: (id) => {
       set((prev) => {
-        const nodePoints = prev.points[id] || [];
+        const nodePoints = prev.pointsByNodes[id] || [];
 
         return {
           ...prev,
           nodes: prev.nodes.filter((n) => n.id !== id),
           connections: prev.connections.filter((c) => {
             return !nodePoints.some(
-              (point) => point.id === c.id || point.id === c.target
+              (point) => point.id === c.output || point.id === c.input
             );
           }),
         };
@@ -99,7 +100,7 @@ export const useStore = createWithEqualityFn<IStore>(
     ],
     connections: [],
 
-    points: {},
+    pointsByNodes: {},
     nodePositions: {},
     pointPositions: {},
   }),

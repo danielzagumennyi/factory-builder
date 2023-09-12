@@ -1,9 +1,10 @@
+import { useContext, useEffect } from "react";
 import { useStore } from "../store";
 import { getElementPosition, getRelativeMousePosition } from "../utils/utils";
 import { usePoint } from "./usePoint";
+import { NodeContext } from "../components/Node";
 
 export const useConnection = <DATA>({
-  nodeId,
   pointId,
   ref,
   isInput = true,
@@ -12,13 +13,28 @@ export const useConnection = <DATA>({
   connectValidation = () => true,
 }: {
   pointId: string | number;
-  nodeId: string | number;
   ref: React.RefObject<HTMLDivElement>;
   data?: DATA;
   connectValidation?: (connectionData: DATA | undefined) => boolean;
   isInput?: boolean;
   isOutput?: boolean;
 }) => {
+  const nodeId = useContext(NodeContext);
+
+  useEffect(() => {
+    useStore.setState((prev) => ({
+      ...prev,
+      pointsData: { ...prev.pointsData, [pointId]: data },
+    }));
+
+    return () => {
+      useStore.setState((prev) => ({
+        ...prev,
+        pointsData: { ...prev.pointsData, [pointId]: undefined },
+      }));
+    };
+  }, [data, pointId]);
+
   usePoint({ id: pointId, nodeId, ref });
 
   const startConnect = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -81,7 +97,7 @@ export const useConnection = <DATA>({
 
 export const stopConnect = () => {
   useStore.setState((prev) => {
-    const { preConnection, canvas, points } = prev;
+    const { preConnection, canvas, pointsByNodes: points } = prev;
 
     if (!canvas || !preConnection || !preConnection.inputPoint) {
       return {
@@ -116,8 +132,8 @@ export const stopConnect = () => {
       connections: [
         ...prev.connections,
         {
-          id: preConnection.outputPoint,
-          target: preConnection.inputPoint,
+          output: preConnection.outputPoint,
+          input: preConnection.inputPoint,
           nodeId: preConnection.nodeId,
         },
       ],

@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@floating-ui/core": "^1.4.1",
+    "@floating-ui/dom": "^1.5.2",
     "@floating-ui/react": "^0.25.4",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-select": "^5.7.4",
+    "reactflow": "^11.8.3",
     "satisfactory-docs-parser": "^7.0.1",
     "styled-components": "^6.0.7",
     "zustand": "^4.4.1"

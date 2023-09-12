@@ -1,47 +1,55 @@
-import { useContext, useRef } from "react";
+import { useId, useRef } from "react";
 import styled, { css } from "styled-components";
-import { NodeContext } from "../../../components/Node";
 import { useConnection } from "../../../hooks/useConnection";
-import { ConnectionType, itemsDescMap } from "../../data/types";
+import { itemsDescMap } from "../../data/types";
 
-export const Connection = ({
-  id,
-  count,
+export type ConnectDataType = {
+  itemId: string;
+  requiredQuantity: number;
+  productionQuantity: number;
+};
+
+export const Connection = <DATA extends ConnectDataType>({
   isOutput = false,
   isInput = false,
-}: ConnectionType & { isOutput?: boolean; isInput?: boolean }) => {
-  const nodeId = useContext(NodeContext);
-
-  const desc = itemsDescMap[id];
+  data,
+  pointId,
+}: {
+  pointId: string;
+  isOutput?: boolean;
+  isInput?: boolean;
+  data: DATA;
+}) => {
+  const itemData = itemsDescMap[data.itemId];
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const connectionId = nodeId + "_" + id;
-
   const { onMouseDown, onMouseEnter, onMouseLeave } = useConnection({
-    nodeId,
-    pointId: connectionId,
+    pointId,
     ref,
-    data: desc,
-    connectValidation: (data) => data?.id === desc.id,
+    data,
     isOutput,
     isInput,
+    connectValidation: (inputData) => {
+      return inputData?.itemId === itemData?.id;
+    },
   });
 
   return (
-    <Wrapper
-      $isOutput={isOutput}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onMouseDown={onMouseDown}
-    >
-      <ImageWrapper>
-        <Image src={desc.image} />
+    <Wrapper $isOutput={isOutput}>
+      <ImageWrapper
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onMouseDown={onMouseDown}
+      >
+        <Image src={itemData.image} />
         <ConnectionSource ref={ref} />
       </ImageWrapper>
       <div>
-        <Name>{desc.name}</Name>
-        <Count>{count}</Count>
+        <Name>{itemData.name}</Name>
+        <Count>
+          {data.productionQuantity}/{data.requiredQuantity}
+        </Count>
       </div>
     </Wrapper>
   );
@@ -51,7 +59,6 @@ const ConnectionSource = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  background-color: red;
 `;
 
 const Image = styled.img`

@@ -5,12 +5,12 @@ export const Connection = ({ el }: { el: IConnectItem }) => {
 
   return (
     <path
-      key={el.id + "_" + el.target}
-      d={`M ${pointPositions[el.id][0]} ${pointPositions[el.id][1]} C ${
-        pointPositions[el.id][0] + 100
-      } ${pointPositions[el.id][1]}, ${pointPositions[el.target][0] - 100} ${
-        pointPositions[el.target][1]
-      }, ${pointPositions[el.target][0]} ${pointPositions[el.target][1]}`}
+      key={el.output + "_" + el.input}
+      d={`M ${pointPositions[el.output][0]} ${pointPositions[el.output][1]} C ${
+        pointPositions[el.output][0] + 100
+      } ${pointPositions[el.output][1]}, ${pointPositions[el.input][0] - 100} ${
+        pointPositions[el.input][1]
+      }, ${pointPositions[el.input][0]} ${pointPositions[el.input][1]}`}
       stroke="#006eff"
       fill="transparent"
     />

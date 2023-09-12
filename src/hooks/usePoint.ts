@@ -23,9 +23,9 @@ export const usePoint = ({
       const position = getElementPosition(ref.current, canvas);
 
       useStore.setState((prev) => ({
-        points: {
-          ...prev.points,
-          [nodeId]: [...(prev.points[nodeId] || []), point],
+        pointsByNodes: {
+          ...prev.pointsByNodes,
+          [nodeId]: [...(prev.pointsByNodes[nodeId] || []), point],
         },
         pointPositions: {
           ...prev.pointPositions,
@@ -36,9 +36,9 @@ export const usePoint = ({
 
     return () => {
       useStore.setState((prev) => ({
-        points: {
-          ...prev.points,
-          [nodeId]: prev.points[nodeId].filter((el) => el.id !== id),
+        pointsByNodes: {
+          ...prev.pointsByNodes,
+          [nodeId]: prev.pointsByNodes[nodeId].filter((el) => el.id !== id),
         },
       }));
     };

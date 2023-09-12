@@ -1,12 +1,13 @@
-import styled from "styled-components";
-import { useContextMenuTrigger } from "../../../components/contextMenu/useContextMenuTrigger";
 import { useContext, useState } from "react";
 import Select from "react-select";
-import { ProductionNodeType, RecipeType, itemsDescMap } from "../../data/types";
-import { Header } from "./Header";
-import { Connection } from "./Connection";
+import styled from "styled-components";
 import { NodeContext } from "../../../components/Node";
+import { useContextMenuTrigger } from "../../../components/contextMenu/useContextMenuTrigger";
 import { useConnections } from "../../../hooks/useConnections";
+import { ProductionNodeType, RecipeType, itemsDescMap } from "../../data/types";
+import { ConnectDataType, Connection } from "./Connection";
+import { Header } from "./Header";
+import { useStore } from "../../../store";
 
 export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
   const nodeId = useContext(NodeContext);
@@ -31,26 +32,72 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
 
   const connections = useConnections();
 
+  const inputs: ConnectDataType[] =
+    prodRecipe?.input.map((el) => {
+      const relatedConnection = connections.find((c) =>
+        c.output.toString().endsWith(el.id)
+      );
+
+      const production = relatedConnection
+        ? (
+            useStore.getState().pointsData[
+              relatedConnection.output
+            ] as ConnectDataType
+          ).productionQuantity
+        : 0;
+
+      return {
+        itemId: el.id,
+        productionQuantity: production,
+        requiredQuantity: el.count,
+      };
+    }) || [];
+
+  const prodEffectivity = Math.min(
+    ...inputs.map((el) => el.productionQuantity / el.requiredQuantity)
+  );
+
+  const production: ConnectDataType[] =
+    prodRecipe?.output.map((el) =>
+      ["copperOre", "ironOre"].includes(el.id)
+        ? {
+            itemId: el.id,
+            productionQuantity: el.count / 4,
+            requiredQuantity: el.count,
+          }
+        : {
+            itemId: el.id,
+            productionQuantity: el.count * prodEffectivity,
+            requiredQuantity: el.count,
+          }
+    ) || [];
+
   return (
     <Wrapper onContextMenu={handleContext}>
       <Header id={data.id} />
       <Select options={options} onChange={(v) => v && setProdRecipe(v)} />
-      {prodRecipe && (
-        <Connections>
-          <div>
-            {prodRecipe.input.map((el) => (
-              <Connection id={el.id} count={el.count} key={el.id} isInput />
-            ))}
-          </div>
-          <div>
-            {prodRecipe.output.map((el) => (
-              <Connection id={el.id} count={el.count} key={el.id} isOutput />
-            ))}
-          </div>
-        </Connections>
-      )}
-
-      <div>{JSON.stringify(connections)}</div>
+      <Connections>
+        <div>
+          {inputs.map((el) => (
+            <Connection
+              pointId={nodeId + "/" + el.itemId}
+              key={el.itemId}
+              data={el}
+              isInput
+            />
+          ))}
+        </div>
+        <div>
+          {production.map((el) => (
+            <Connection
+              pointId={nodeId + "/" + el.itemId}
+              key={el.itemId}
+              data={el}
+              isOutput
+            />
+          ))}
+        </div>
+      </Connections>
     </Wrapper>
   );
 };

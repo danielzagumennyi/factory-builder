@@ -7,11 +7,11 @@ export const useConnections = () => {
   const nodeId = useContext(NodeContext);
 
   const connections = useStore((s) => {
-    const nodePoints = s.points[nodeId] || [];
+    const nodePoints = s.pointsByNodes[nodeId] || [];
 
     return s.connections.filter((c) => {
       return nodePoints.some(
-        (point) => point.id === c.id || point.id === c.target
+        (point) => point.id === c.output || point.id === c.input
       );
     });
   }, shallow);
