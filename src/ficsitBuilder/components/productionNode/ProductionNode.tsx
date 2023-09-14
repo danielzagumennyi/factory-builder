@@ -57,12 +57,14 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
     ...inputs.map((el) => el.productionQuantity / el.requiredQuantity)
   );
 
+  const [output, setOutput] = useState(0);
+
   const production: ConnectDataType[] =
     prodRecipe?.output.map((el) =>
       ["copperOre", "ironOre"].includes(el.id)
         ? {
             itemId: el.id,
-            productionQuantity: el.count * 2,
+            productionQuantity: output || 0,
             requiredQuantity: el.count,
           }
         : {
@@ -96,6 +98,17 @@ export const ProductionNode = ({ data }: { data: ProductionNodeType }) => {
               isOutput
             />
           ))}
+
+          {data.id === "miner" && (
+            <input
+              type="number"
+              min={0}
+              max={10000}
+              value={output}
+              step={1}
+              onChange={(e) => setOutput(parseInt(e.target.value))}
+            />
+          )}
         </div>
       </Connections>
     </Wrapper>

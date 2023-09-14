@@ -1,37 +1,22 @@
-import { shallow } from "zustand/shallow";
-import { startDrag } from "../hooks/useDrag";
-import { useStore } from "../store";
-import { getRelativeMousePosition } from "../utils/utils";
 import { createContext } from "react";
+import { shallow } from "zustand/shallow";
+import { useDragProps } from "../hooks/useDragProps";
+import { useKeysDrag } from "../hooks/useKeysDrag";
+import { useStore } from "../store";
 
 export const NodeContext = createContext<string>("");
 
 export const Node = ({ id }: { id: string }) => {
-  const [x, y] = useStore((s) => s.nodePositions[id] || [0, 0], shallow);
   const content = useStore(
     (s) => s.nodes.find((s) => s.id === id)?.content,
     shallow
   );
 
+  const keyDrag = useKeysDrag(id);
+  const dragProps = useDragProps(id);
+
   return (
-    <div
-      onMouseDown={(e) => {
-        if (e.button !== 0) return;
-        startDrag({
-          id: id,
-          offset: getRelativeMousePosition(e),
-        });
-      }}
-      style={{
-        position: "absolute",
-        left: x + "px",
-        top: y + "px",
-        userSelect: "none",
-        overflow: "visible",
-        width: "min-content",
-        zIndex: 1,
-      }}
-    >
+    <div {...keyDrag} {...dragProps}>
       <NodeContext.Provider value={id}>{content}</NodeContext.Provider>
     </div>
   );

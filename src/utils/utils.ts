@@ -1,5 +1,5 @@
 export const getRelativeMousePosition = (
-  e: React.MouseEvent<HTMLElement>
+  e: React.MouseEvent
 ): [number, number] => {
   const rect = e.currentTarget.getBoundingClientRect();
   return [e.clientX - rect.x, e.clientY - rect.y];
