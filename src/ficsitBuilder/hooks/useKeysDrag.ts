@@ -1,12 +1,13 @@
-import { useStore } from "../store";
-import { moveNode } from "./useDrag";
+import { useBuilderStore } from "../store/builderStore";
 
 export const useKeysDrag = (
-  id: string | number,
+  id: string,
   getStep: (e: React.KeyboardEvent) => number = () => 10
 ) => {
+  const moveNode = useBuilderStore((s) => s.moveNode);
+
   const onKeyUp = (e: React.KeyboardEvent) => {
-    const [x, y] = useStore.getState().nodePositions[id];
+    const [x, y] = useBuilderStore.getState().nodePositions[id];
     const step = getStep(e);
 
     if (e.key === "ArrowUp") {

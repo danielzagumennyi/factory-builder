@@ -1,4 +1,3 @@
-import "reactflow/dist/style.css";
 import styled from "styled-components";
 import { GlobalStyles, ResetStyles } from "./components/styled/Common";
 import { FicsitBuilder } from "./ficsitBuilder/FicsitBuilder";

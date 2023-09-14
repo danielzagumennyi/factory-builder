@@ -1,7 +1,7 @@
 import { createContext } from "react";
 import { shallow } from "zustand/shallow";
-import { useDragProps } from "../hooks/useDragProps";
-import { useKeysDrag } from "../hooks/useKeysDrag";
+import { useDrag } from "../ficsitBuilder/hooks/useMouseDrag";
+import { useKeysDrag } from "../ficsitBuilder/hooks/useKeysDrag";
 import { useStore } from "../store";
 
 export const NodeContext = createContext<string>("");
@@ -13,7 +13,7 @@ export const Node = ({ id }: { id: string }) => {
   );
 
   const keyDrag = useKeysDrag(id);
-  const dragProps = useDragProps(id);
+  const dragProps = useDrag(id);
 
   return (
     <div {...keyDrag} {...dragProps}>

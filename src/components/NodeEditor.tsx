@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { moveConnect, stopConnect } from "../hooks/useConnection";
-import { stopDrag, useDrag } from "../hooks/useDrag";
+import { stopDrag, useDrag } from "../ficsitBuilder/hooks/useMouseDrag";
 import { useStore } from "../store";
-import { Connections } from "./Connections";
+import { Links } from "../ficsitBuilder/components/Links";
 import { Node } from "./Node";
 import { ContextMenu } from "./contextMenu/ContextMenu";
 
@@ -36,7 +36,7 @@ export const NodeEditor = () => {
         ref={(el) => useStore.setState({ canvas: el })}
         onMouseMove={handleMove}
       >
-        <Connections />
+        <Links />
         {nodes.map((el) => (
           <Node id={el.id} key={el.id} />
         ))}
