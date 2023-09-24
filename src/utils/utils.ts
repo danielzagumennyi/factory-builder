@@ -1,13 +1,14 @@
 export const getRelativeMousePosition = (
-  e: React.MouseEvent
+  element: Element,
+  e: MouseEvent
 ): [number, number] => {
-  const rect = e.currentTarget.getBoundingClientRect();
+  const rect = element.getBoundingClientRect();
   return [e.clientX - rect.x, e.clientY - rect.y];
 };
 
 export const getElementPosition = (
-  el: HTMLElement,
-  canvas: HTMLElement
+  el: Element,
+  canvas: Element
 ): [number, number] => {
   const rect = el.getBoundingClientRect();
   const canvasRect = canvas.getBoundingClientRect();
