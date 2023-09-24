@@ -34,6 +34,10 @@
         background-color: #000;
         color: #fff;
         padding: 20px;
+        user-select: none;
+        position: relative;
+        height: 100%;
+        width: 100%;
       }
 
       .in-selection {
@@ -57,6 +61,16 @@
         background: rgba(0, 133, 255, 0.1);
         z-index: 100;
         position: absolute;
+      }
+
+      .resize-edge {
+        width: 10px;
+        height: 10px;
+        background-color: #0085ff;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        transform: translate(50%, 50%);
       }
     </style>
 
