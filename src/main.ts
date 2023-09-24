@@ -33,6 +33,18 @@ drag({
 });
 
 resize({
+  element: document.querySelector<HTMLElement>("#drag1"),
+  canvas: containerEl,
+});
+resize({
+  element: document.querySelector<HTMLElement>("#drag2"),
+  canvas: containerEl,
+});
+resize({
+  element: document.querySelector<HTMLElement>("#drag3"),
+  canvas: containerEl,
+});
+resize({
   element: document.querySelector<HTMLElement>("#drag4"),
   canvas: containerEl,
 });

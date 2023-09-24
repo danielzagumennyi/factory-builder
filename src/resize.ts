@@ -3,16 +3,18 @@ export type ResizeProps = {
   canvas?: HTMLElement | null;
 };
 
-export const sizes = new Map<Element, ResizeObserverEntry>();
+export const sizes = new Map<Element, DOMRectReadOnly>();
 
 const resizeObserver = new ResizeObserver((events) => {
   events.forEach((e) => {
-    sizes.set(e.target, e);
+    sizes.set(e.target, e.contentRect);
   });
 });
 
 export const resize = ({ canvas, element }: ResizeProps) => {
   if (!element || !canvas) return;
+
+  sizes.set(element, element.getBoundingClientRect());
 
   resizeObserver.observe(element);
 
@@ -26,7 +28,8 @@ export const resize = ({ canvas, element }: ResizeProps) => {
     e.stopPropagation();
 
     const handleMove = (e: MouseEvent) => {
-      const rect = element.getBoundingClientRect();
+      const rect = sizes.get(element);
+      if (!rect) return;
       element.style.width = Math.max(50, rect.width + e.movementX) + "px";
       element.style.height = Math.max(50, rect.height + e.movementY) + "px";
     };
