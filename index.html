@@ -72,6 +72,15 @@
         right: 0;
         transform: translate(50%, 50%);
       }
+
+      #panel {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #fff;
+      }
     </style>
 
     <div id="canvas" data-type="canvas">
@@ -90,6 +99,14 @@
           <div class="drag-content">Drag content</div>
         </div>
       </div>
+    </div>
+    <div id="panel">
+      <button data-align="left">left</button>
+      <button data-align="horizontal-center">horizontal center</button>
+      <button data-align="right">right</button>
+      <button data-align="top">top</button>
+      <button data-align="vertical-center">vertical center</button>
+      <button data-align="bottom">bottom</button>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
