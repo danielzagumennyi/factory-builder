@@ -11,6 +11,10 @@ const resizeObserver = new ResizeObserver((events) => {
   });
 });
 
+type PlacementType = ["left"|"right","top"|"bottom"];
+const handlePositions: PlacementType[] = [["left","top"],["right","top"],["right","bottom"],["left","bottom"]];
+const getSign = (v:"left"|"right"|"top"|"bottom") => ["left","top"].includes(v) ? "-" : "";
+
 export const resize = ({ canvas, element }: ResizeProps) => {
   if (!element || !canvas) return;
 
@@ -18,20 +22,40 @@ export const resize = ({ canvas, element }: ResizeProps) => {
 
   resizeObserver.observe(element);
 
-  const resizeHandleElement = document.createElement("div");
-  resizeHandleElement.classList.add("resize-edge");
-  element.querySelector(".drag-content")?.appendChild(resizeHandleElement);
+  const resizeHandles = handlePositions.map(([x,y]) => {
+    const resizeHandle = document.createElement("span");
+    resizeHandle.classList.add("resize-edge"); 
+    resizeHandle.style[x] = "0px";
+    resizeHandle.style[y] = "0px";
+    resizeHandle.style.transform = `translate(${getSign(x)}50%, ${getSign(y)}50%)`;
+    resizeHandle.setAttribute("data-placement", `${x}-${y}`);
+    element.querySelector(".drag-content")?.appendChild(resizeHandle);
+
+    return resizeHandle;
+  });
 
   const handleDown = (e: MouseEvent) => {
-    if (e.button !== 0) return;
+    const placement = (e.target as HTMLSpanElement).getAttribute("data-placement")?.split("-") as PlacementType | undefined;
+    if (e.button !== 0 || !placement) return;
 
     e.stopPropagation();
 
     const handleMove = (e: MouseEvent) => {
       const rect = sizes.get(element);
       if (!rect) return;
-      element.style.width = Math.max(50, rect.width + e.movementX) + "px";
-      element.style.height = Math.max(50, rect.height + e.movementY) + "px";
+
+      if (placement[0] === "left") {
+        element.style.width = `${Math.max(50, rect.width - e.movementX)}px`;
+        element.style.left = `${Math.max(50, element.getBoundingClientRect().x + e.movementX)}px`;
+      } else {
+        element.style.width = `${Math.max(50, rect.width + e.movementX)}px`;
+      }
+      if (placement[1] === "top") {
+        element.style.height = `${Math.max(50, rect.height - e.movementY)}px`;
+        element.style.top = `${Math.max(50, element.getBoundingClientRect().y + e.movementY)}px`;
+      } else {
+        element.style.height = `${Math.max(50, rect.height + e.movementY)}px`;
+      }      
     };
 
     const handleUp = () => {
@@ -43,5 +67,5 @@ export const resize = ({ canvas, element }: ResizeProps) => {
     document.addEventListener("mouseup", handleUp);
   };
 
-  resizeHandleElement.addEventListener("mousedown", handleDown);
+  resizeHandles.forEach(el => el.addEventListener("mousedown", handleDown));
 };
