@@ -1,4 +1,5 @@
 import { selectedElements, setSelected, unselect } from "./select";
+import { elementsData, setPosition } from "./store";
 import { getRelativeMousePosition } from "./utils/utils";
 
 export type PositionType = [number, number];
@@ -6,6 +7,7 @@ export type PositionType = [number, number];
 export type DragProps = {
   element?: HTMLElement | null;
   canvas?: HTMLElement | null;
+  moveInnerPanel?: boolean;
 };
 
 export type CanvasProps = {
@@ -15,13 +17,11 @@ export type CanvasProps = {
 
 export let scale = 1;
 
-export const positions = new Map<HTMLElement, PositionType>();
-
 export const canvas = ({ element, canvas }: CanvasProps) => {
   if (!element || !canvas) return;
 
   const onWheel = (e: WheelEvent) => {
-    const position = positions.get(element);
+    const position = elementsData.get(element)?.position;
     if (!position) return;
 
     const newScale = scale + e.deltaY / 1000;
@@ -48,16 +48,6 @@ export const canvas = ({ element, canvas }: CanvasProps) => {
   canvas.addEventListener("wheel", onWheel);
 };
 
-export const setPosition = (
-  element: HTMLElement,
-  newPosition: PositionType
-) => {
-  positions.set(element, newPosition);
-  element.style.left = newPosition[0] + "px";
-  element.style.top = newPosition[1] + "px";
-  positions.set(element, newPosition);
-};
-
 const handleMove = ({
   event,
   canvas,
@@ -68,7 +58,7 @@ const handleMove = ({
   if (!canvas || !selectedElements.length) return;
 
   selectedElements.map((el) => {
-    const currentPos = positions.get(el) || [0, 0];
+    const currentPos = elementsData.get(el)?.position || [0, 0];
 
     const position: [number, number] = [
       (currentPos[0] + event.movementX) / scale,
@@ -108,7 +98,7 @@ export const drag = ({ element, canvas = document.body }: DragProps) => {
   const onKeyUp = (e: KeyboardEvent) => {
     const step = 10;
 
-    const position = positions.get(element);
+    const position = elementsData.get(element)?.position;
     if (!position) return;
 
     const [x, y] = position;

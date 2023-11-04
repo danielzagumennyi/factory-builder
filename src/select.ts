@@ -1,6 +1,6 @@
 import { uniq } from "lodash";
 import { getElementPosition, getRelativeMousePosition } from "./utils/utils";
-import { positions, setPosition } from "./common";
+import { elementsData, setPosition } from "./store";
 
 export let selectedElements: HTMLElement[] = [];
 
@@ -59,7 +59,11 @@ export const select = ({ canvas }: SelectProps) => {
 
       const [selectionX, selectionY] = getElementPosition(selectionEl, canvas);
 
-      for (const [el, [x, y]] of positions.entries()) {
+      for (const [el, data] of elementsData.entries()) {
+        if (!data.position) return;
+
+        const [x, y] = data.position;
+
         if (el.hasAttribute("data-type")) {
           if (
             x > selectionX &&

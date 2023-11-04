@@ -1,6 +1,7 @@
 import { mean } from "lodash";
-import { positions, setPosition } from "./common";
+import { setPosition } from "./store";
 import { selectedElements } from "./select";
+import { elementsData } from "./store";
 
 export const panel = () => {
   document.querySelectorAll("[data-align]").forEach((el) => {
@@ -13,9 +14,9 @@ export const panel = () => {
         );
 
         selectedElements.forEach((el) => {
-          const pos = positions.get(el);
-          if (!pos) return;
-          setPosition(el, [minX, pos[1]]);
+          const position = elementsData.get(el)?.position;
+          if (!position) return;
+          setPosition(el, [minX, position[1]]);
         });
         return;
       }
@@ -30,11 +31,11 @@ export const panel = () => {
         );
 
         selectedElements.forEach((el) => {
-          const pos = positions.get(el);
-          if (!pos) return;
+          const position = elementsData.get(el)?.position;
+          if (!position) return;
           setPosition(el, [
             averageX - el.getBoundingClientRect().width / 2,
-            pos[1],
+            position[1],
           ]);
         });
         return;
@@ -46,9 +47,9 @@ export const panel = () => {
         );
 
         selectedElements.forEach((el) => {
-          const pos = positions.get(el);
-          if (!pos) return;
-          setPosition(el, [maxX, pos[1]]);
+          const position = elementsData.get(el)?.position;
+          if (!position) return;
+          setPosition(el, [maxX, position[1]]);
         });
         return;
       }
