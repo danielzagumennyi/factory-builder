@@ -10,6 +10,7 @@ type ElementData = {
 export const store = {
   canvasElement: document.body,
   containerElement: document.body,
+  scale: 1,
 
   elementsData: new Map<HTMLElement, Partial<ElementData>>(),
   get arrayData() {

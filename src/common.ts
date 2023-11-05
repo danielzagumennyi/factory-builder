@@ -1,10 +1,7 @@
+import { clamp } from "lodash";
 import { setSelected, unselect } from "./select";
 import { store, setPosition } from "./store";
-import {
-  createKeyWatcher,
-  getRelativeMousePosition,
-  hasCollision,
-} from "./utils/utils";
+import { createKeyWatcher, hasCollision } from "./utils/utils";
 
 export type PositionType = [number, number];
 
@@ -17,41 +14,83 @@ export type CanvasProps = {
   element?: HTMLElement | null;
 };
 
-export let scale = 1;
-
 const spacePressed = createKeyWatcher("Space");
 
 export const canvas = () => {
-  const onWheel = (e: WheelEvent) => {
-    const position = store.elementsData.get(store.containerElement)?.position;
-    if (!position) return;
+  // const onWheel = (e: WheelEvent) => {
+  //   const position = store.elementsData.get(store.containerElement)?.position;
+  //   if (!position) return;
 
-    const newScale = scale + e.deltaY / 1000;
+  //   const newScale = scale + e.deltaY / 1000;
 
-    const prevMousePos = getRelativeMousePosition(
-      store.containerElement,
-      e
-    ).map((e) => e / scale);
+  //   const prevMousePos = getRelativeMousePosition(
+  //     store.containerElement,
+  //     e
+  //   ).map((e) => e / scale);
 
-    const newMousePos = getRelativeMousePosition(store.containerElement, e).map(
-      (e) => e / newScale
-    );
+  //   const newMousePos = getRelativeMousePosition(store.containerElement, e).map(
+  //     (e) => e / newScale
+  //   );
 
-    const diff = [
-      prevMousePos[0] - newMousePos[0],
-      prevMousePos[1] - newMousePos[1],
-    ];
+  //   const diff = [
+  //     prevMousePos[0] - newMousePos[0],
+  //     prevMousePos[1] - newMousePos[1],
+  //   ];
 
-    scale = newScale;
+  //   scale = newScale;
 
-    setPosition(store.containerElement, [
-      position[0] - diff[0],
-      position[1] - diff[1],
-    ]);
-    store.containerElement.style.transform = `scale(${scale})`;
-  };
+  //   setPosition(store.containerElement, [
+  //     position[0] - diff[0],
+  //     position[1] - diff[1],
+  //   ]);
+  //   store.containerElement.style.transform = `scale(${scale})`;
+  // };
 
-  store.canvasElement.addEventListener("wheel", onWheel);
+  // store.canvasElement.addEventListener("wheel", onWheel);
+
+  const element = store.containerElement;
+
+  store.canvasElement.addEventListener("wheel", function (event) {
+    const rect = element.getBoundingClientRect();
+
+    const cursorX = event.clientX - rect.left;
+    const cursorY = event.clientY - rect.top;
+
+    const scaledCursorX = cursorX / store.scale;
+    const scaledCursorY = cursorY / store.scale;
+
+    store.scale += event.deltaY * -0.001;
+
+    store.scale = clamp(store.scale, 0.5, 3);
+
+    element.style.transformOrigin =
+      scaledCursorX + "px " + scaledCursorY + "px";
+
+    element.style.transform = "scale(" + store.scale + ")";
+
+    event.preventDefault();
+  });
+
+  store.canvasElement.addEventListener("wheel", function (event) {
+    const rect = element.getBoundingClientRect();
+
+    const cursorX = event.clientX - rect.left;
+    const cursorY = event.clientY - rect.top;
+
+    const scaledCursorX = cursorX / store.scale;
+    const scaledCursorY = cursorY / store.scale;
+
+    store.scale += event.deltaY * -0.001;
+
+    store.scale = clamp(store.scale, 0.5, 3);
+
+    element.style.transformOrigin =
+      scaledCursorX + "px " + scaledCursorY + "px";
+
+    element.style.transform = "scale(" + store.scale + ")";
+
+    event.preventDefault();
+  });
 };
 
 const handleMove = ({ event }: { event: MouseEvent }) => {
@@ -59,8 +98,8 @@ const handleMove = ({ event }: { event: MouseEvent }) => {
     const currentPosition = store.elementsData.get(el)?.position || [0, 0];
 
     const newPosition: [number, number] = [
-      (currentPosition[0] + event.movementX) / scale,
-      (currentPosition[1] + event.movementY) / scale,
+      currentPosition[0] + event.movementX / store.scale,
+      currentPosition[1] + event.movementY / store.scale,
     ];
 
     setPosition(el, newPosition);
