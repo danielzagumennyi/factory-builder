@@ -1,16 +1,13 @@
-import { uniq } from "lodash";
+import { setPosition, store } from "./store";
 import { getElementPosition, getRelativeMousePosition } from "./utils/utils";
-import { elementsData, setPosition } from "./store";
-
-export let selectedElements: HTMLElement[] = [];
 
 export const setSelected = (el: HTMLElement) => {
-  selectedElements = uniq([...selectedElements, el]);
+  store.updateElementData(el, { isSelected: true });
   showActive(el);
 };
 
 export const unselect = (el: HTMLElement) => {
-  selectedElements = selectedElements.filter((item) => item !== el);
+  store.updateElementData(el, { isSelected: false });
   unShowActive(el);
 };
 
@@ -22,29 +19,23 @@ export const unShowActive = (el: HTMLElement) => {
   el.style.boxShadow = "none";
 };
 
-type SelectProps = {
-  canvas?: HTMLElement | null;
-};
-
-export const select = ({ canvas }: SelectProps) => {
-  if (!canvas) return;
-
+export const select = () => {
   const handleDown = (e: MouseEvent) => {
-    selectedElements.forEach(unselect);
+    store.selectedElements.forEach(unselect);
 
     const selectionEl = document.createElement("div");
     selectionEl.setAttribute("id", "selection");
     selectionEl.style.position = "absolute";
 
-    const start = getRelativeMousePosition(canvas, e);
+    const start = getRelativeMousePosition(store.canvasElement, e);
     const [startX, startY] = start;
 
     setPosition(selectionEl, start);
 
-    canvas.appendChild(selectionEl);
+    store.canvasElement.appendChild(selectionEl);
 
     const handleMove = (e: MouseEvent): void => {
-      const [mouseX, mouseY] = getRelativeMousePosition(canvas, e);
+      const [mouseX, mouseY] = getRelativeMousePosition(store.canvasElement, e);
 
       const [width, height] = [mouseX - startX, mouseY - startY];
 
@@ -57,9 +48,12 @@ export const select = ({ canvas }: SelectProps) => {
 
       const rect = selectionEl.getBoundingClientRect();
 
-      const [selectionX, selectionY] = getElementPosition(selectionEl, canvas);
+      const [selectionX, selectionY] = getElementPosition(
+        selectionEl,
+        store.canvasElement
+      );
 
-      for (const [el, data] of elementsData.entries()) {
+      for (const [el, data] of store.elementsData.entries()) {
         if (!data.position) return;
 
         const [x, y] = data.position;
@@ -78,13 +72,13 @@ export const select = ({ canvas }: SelectProps) => {
         }
       }
     };
-    canvas.addEventListener("mousemove", handleMove);
+    store.canvasElement.addEventListener("mousemove", handleMove);
 
-    canvas.addEventListener("mouseup", () => {
-      canvas.removeEventListener("mousemove", handleMove);
+    store.canvasElement.addEventListener("mouseup", () => {
+      store.canvasElement.removeEventListener("mousemove", handleMove);
       selectionEl.remove();
     });
   };
 
-  canvas.addEventListener("mousedown", handleDown);
+  store.canvasElement.addEventListener("mousedown", handleDown);
 };

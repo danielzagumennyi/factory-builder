@@ -1,36 +1,39 @@
-import { selectedElements, setSelected, unselect } from "./select";
-import { elementsData, setPosition } from "./store";
-import { getRelativeMousePosition } from "./utils/utils";
+import { setSelected, unselect } from "./select";
+import { store, setPosition } from "./store";
+import {
+  createKeyWatcher,
+  getRelativeMousePosition,
+  hasCollision,
+} from "./utils/utils";
 
 export type PositionType = [number, number];
 
 export type DragProps = {
   element?: HTMLElement | null;
-  canvas?: HTMLElement | null;
   moveInnerPanel?: boolean;
 };
 
 export type CanvasProps = {
   element?: HTMLElement | null;
-  canvas?: HTMLElement | null;
 };
 
 export let scale = 1;
 
-export const canvas = ({ element, canvas }: CanvasProps) => {
-  if (!element || !canvas) return;
+const spacePressed = createKeyWatcher("Space");
 
+export const canvas = () => {
   const onWheel = (e: WheelEvent) => {
-    const position = elementsData.get(element)?.position;
+    const position = store.elementsData.get(store.containerElement)?.position;
     if (!position) return;
 
     const newScale = scale + e.deltaY / 1000;
 
-    const prevMousePos = getRelativeMousePosition(element, e).map(
-      (e) => e / scale
-    );
+    const prevMousePos = getRelativeMousePosition(
+      store.containerElement,
+      e
+    ).map((e) => e / scale);
 
-    const newMousePos = getRelativeMousePosition(element, e).map(
+    const newMousePos = getRelativeMousePosition(store.containerElement, e).map(
       (e) => e / newScale
     );
 
@@ -41,64 +44,80 @@ export const canvas = ({ element, canvas }: CanvasProps) => {
 
     scale = newScale;
 
-    setPosition(element, [position[0] - diff[0], position[1] - diff[1]]);
-    element.style.transform = `scale(${scale})`;
+    setPosition(store.containerElement, [
+      position[0] - diff[0],
+      position[1] - diff[1],
+    ]);
+    store.containerElement.style.transform = `scale(${scale})`;
   };
 
-  canvas.addEventListener("wheel", onWheel);
+  store.canvasElement.addEventListener("wheel", onWheel);
 };
 
-const handleMove = ({
-  event,
-  canvas,
-}: {
-  event: MouseEvent;
-  canvas?: HTMLElement;
-}) => {
-  if (!canvas || !selectedElements.length) return;
+const handleMove = ({ event }: { event: MouseEvent }) => {
+  const moveEl = (el: HTMLElement): void => {
+    const currentPosition = store.elementsData.get(el)?.position || [0, 0];
 
-  selectedElements.map((el) => {
-    const currentPos = elementsData.get(el)?.position || [0, 0];
-
-    const position: [number, number] = [
-      (currentPos[0] + event.movementX) / scale,
-      (currentPos[1] + event.movementY) / scale,
+    const newPosition: [number, number] = [
+      (currentPosition[0] + event.movementX) / scale,
+      (currentPosition[1] + event.movementY) / scale,
     ];
 
-    setPosition(el, position);
-  });
+    setPosition(el, newPosition);
+  };
+
+  if (spacePressed()) {
+    moveEl(store.containerElement);
+    return;
+  }
+
+  if (!store.selectedElements.length) return;
+
+  store.selectedElements.map(moveEl);
 };
 
-export const drag = ({ element, canvas = document.body }: DragProps) => {
-  if (!element || !canvas) return;
+document.addEventListener("mousemove", (event: MouseEvent) => {
+  handleMove({ event });
+});
+
+export const drag = ({ element, moveInnerPanel }: DragProps) => {
+  if (!element) return;
+
+  if (moveInnerPanel) {
+    element.setAttribute("data-group", "true");
+  }
 
   const handleDown = (e: MouseEvent) => {
     if (e.button !== 0) return;
 
     e.stopPropagation();
 
-    if (!selectedElements.includes(element)) {
-      selectedElements.forEach(unselect);
+    if (!store.selectedElements.includes(element)) {
+      store.selectedElements.forEach(unselect);
       setSelected(element);
     }
 
-    const move = (event: MouseEvent) => {
-      handleMove({ event, canvas });
-    };
+    store.selectedElements.forEach((el) => {
+      if (!el.hasAttribute("data-group")) return;
+      const collisionElements = store.notSelectedElements.filter((el2) =>
+        hasCollision(el, el2)
+      );
+
+      collisionElements.forEach(setSelected);
+    });
 
     const handleUp = () => {
-      document.removeEventListener("mousemove", move);
+      unselect(element);
       document.removeEventListener("mouseup", handleUp);
     };
 
-    document.addEventListener("mousemove", move);
     document.addEventListener("mouseup", handleUp);
   };
 
   const onKeyUp = (e: KeyboardEvent) => {
     const step = 10;
 
-    const position = elementsData.get(element)?.position;
+    const position = store.elementsData.get(element)?.position;
     if (!position) return;
 
     const [x, y] = position;
@@ -111,9 +130,4 @@ export const drag = ({ element, canvas = document.body }: DragProps) => {
 
   element.addEventListener("mousedown", handleDown);
   element.addEventListener("keyup", onKeyUp);
-
-  element.style.position = "absolute";
-  element.setAttribute("tabindex", "0");
-
-  element.addEventListener("resize", console.log);
 };

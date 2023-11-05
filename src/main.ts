@@ -1,67 +1,29 @@
 import { canvas, drag } from "./common";
-import { guidelines } from "./guidelines";
 import { panel } from "./panel";
 import { resize } from "./resize";
 import { select } from "./select";
+import { store } from "./store";
 
-const canvasEl = document.querySelector<HTMLElement>("#canvas");
-const containerEl = document.querySelector<HTMLElement>("#container");
+store.containerElement = store.containerElement =
+  document.querySelector<HTMLElement>("#container") || document.body;
+store.canvasElement =
+  document.querySelector<HTMLElement>("#canvas") || document.body;
 
-canvas({ element: containerEl, canvas: canvasEl });
+canvas();
 
-select({ canvas: canvasEl });
+select();
 
-// drag({
-//   element: containerEl,
-//   canvas: canvasEl,
-// });
-
-drag({
-  element: document.querySelector<HTMLElement>("#drag1"),
-  canvas: containerEl,
-});
-
-drag({
-  element: document.querySelector<HTMLElement>("#drag2"),
-  canvas: containerEl,
-});
+drag({ element: document.querySelector<HTMLElement>("#drag1") });
+drag({ element: document.querySelector<HTMLElement>("#drag2") });
 drag({
   element: document.querySelector<HTMLElement>("#drag3"),
-  canvas: containerEl,
+  moveInnerPanel: true,
 });
-drag({
-  element: document.querySelector<HTMLElement>("#drag4"),
-  canvas: containerEl,
-});
+drag({ element: document.querySelector<HTMLElement>("#drag4") });
 
-resize({
-  element: document.querySelector<HTMLElement>("#drag1"),
-  canvas: containerEl,
-});
-resize({
-  element: document.querySelector<HTMLElement>("#drag2"),
-  canvas: containerEl,
-});
-resize({
-  element: document.querySelector<HTMLElement>("#drag3"),
-  canvas: containerEl,
-});
-resize({
-  element: document.querySelector<HTMLElement>("#drag4"),
-  canvas: containerEl,
-});
-
-guidelines({
-  element: document.querySelector<HTMLElement>("#drag1"),
-});
-guidelines({
-  element: document.querySelector<HTMLElement>("#drag2"),
-});
-guidelines({
-  element: document.querySelector<HTMLElement>("#drag3"),
-});
-guidelines({
-  element: document.querySelector<HTMLElement>("#drag4"),
-});
+resize({ element: document.querySelector<HTMLElement>("#drag1") });
+resize({ element: document.querySelector<HTMLElement>("#drag2") });
+resize({ element: document.querySelector<HTMLElement>("#drag3") });
+resize({ element: document.querySelector<HTMLElement>("#drag4") });
 
 panel();

@@ -40,10 +40,6 @@
         width: 100%;
       }
 
-      .in-selection {
-        border: 1px solid #0085ff;
-      }
-
       #background {
         position: absolute;
         left: 0;
@@ -54,6 +50,10 @@
         opacity: 0.8;
         background-image: radial-gradient(#444cf7 0.5px, #e5e5f7 0.5px);
         background-size: 10px 10px;
+      }
+
+      #container {
+        position: absolute;
       }
 
       #selection {
@@ -78,21 +78,29 @@
         border-radius: 4px;
         background-color: #fff;
       }
+
+      *[data-group="true"] {
+        opacity: 0.5;
+      }
+
+      .drag-block {
+        position: absolute;
+      }
     </style>
 
     <div id="canvas" data-type="canvas">
       <div id="container" data-type="container">
         <div id="background"></div>
-        <div id="drag1" data-type="drag">
+        <div class="drag-block" id="drag1" data-type="drag">
           <div class="drag-content">Drag content</div>
         </div>
-        <div id="drag2" data-type="drag">
+        <div class="drag-block" id="drag2" data-type="drag">
           <div class="drag-content">Drag content</div>
         </div>
-        <div id="drag3" data-type="drag">
-          <div class="drag-content">Drag content</div>
+        <div class="drag-block" id="drag3" data-type="drag">
+          <div class="drag-content">This is group</div>
         </div>
-        <div id="drag4" data-type="drag">
+        <div class="drag-block" id="drag4" data-type="drag">
           <div class="drag-content">Drag content</div>
         </div>
       </div>

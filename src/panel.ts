@@ -1,7 +1,6 @@
 import { mean } from "lodash";
 import { setPosition } from "./store";
-import { selectedElements } from "./select";
-import { elementsData } from "./store";
+import { store } from "./store";
 
 export const panel = () => {
   document.querySelectorAll("[data-align]").forEach((el) => {
@@ -10,11 +9,13 @@ export const panel = () => {
       const align = (e.target as HTMLElement).getAttribute("data-align");
       if (align === "left") {
         const minX = Math.min(
-          ...selectedElements.map((item) => item.getBoundingClientRect().x)
+          ...store.selectedElements.map(
+            (item) => item.getBoundingClientRect().x
+          )
         );
 
-        selectedElements.forEach((el) => {
-          const position = elementsData.get(el)?.position;
+        store.selectedElements.forEach((el) => {
+          const position = store.elementsData.get(el)?.position;
           if (!position) return;
           setPosition(el, [minX, position[1]]);
         });
@@ -23,15 +24,15 @@ export const panel = () => {
 
       if (align === "horizontal-center") {
         const averageX = mean(
-          selectedElements.map((el) => {
+          store.selectedElements.map((el) => {
             const { x, width } = el.getBoundingClientRect();
 
             return x + width / 2;
           })
         );
 
-        selectedElements.forEach((el) => {
-          const position = elementsData.get(el)?.position;
+        store.selectedElements.forEach((el) => {
+          const position = store.elementsData.get(el)?.position;
           if (!position) return;
           setPosition(el, [
             averageX - el.getBoundingClientRect().width / 2,
@@ -43,11 +44,13 @@ export const panel = () => {
 
       if (align === "right") {
         const maxX = Math.min(
-          ...selectedElements.map((item) => item.getBoundingClientRect().x)
+          ...store.selectedElements.map(
+            (item) => item.getBoundingClientRect().x
+          )
         );
 
-        selectedElements.forEach((el) => {
-          const position = elementsData.get(el)?.position;
+        store.selectedElements.forEach((el) => {
+          const position = store.elementsData.get(el)?.position;
           if (!position) return;
           setPosition(el, [maxX, position[1]]);
         });
